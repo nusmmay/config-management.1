@@ -1,0 +1,9 @@
+{
+  "A": ["B_keep", "C_skip", "D_keep"],
+  "B_keep": ["E_keep"],
+  "C_skip": ["F_skip"],
+  "D_keep": ["G_skip"],
+  "E_keep": [],
+  "F_skip": [],
+  "G_skip": []
+}
