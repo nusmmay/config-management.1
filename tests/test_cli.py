@@ -19,11 +19,11 @@ def run_cli(args):
 
 def test_correct_run():
     result = run_cli([
-        "-p", "serde", "-v", "1.0.0",
-        "-r", "https://crates.io/api/v1/crates"
+        "-p", "A", "-v", "1.0.0",
+        "-r", "tests/fixtures/simple.json", "-t"
     ])
     assert result.returncode == 0
-    assert "package      = serde" in result.stdout
+    assert "package      = A" in result.stdout
     print("OK: test_correct_run")
 
 
