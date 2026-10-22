@@ -7,7 +7,9 @@ import json
 import urllib.request
 import urllib.error
 
-
+# Константы для избежания "магических чисел"
+HTTP_NOT_FOUND = 404
+REQUEST_TIMEOUT = 10
 CRATES_API_URL = "https://crates.io/api/v1/crates"
 
 
@@ -28,11 +30,13 @@ def fetch_dependencies(package, version, repo_url=None):
             url,
             headers={"User-Agent": "config-management-tool/1.0"}
         )
-        with urllib.request.urlopen(request, timeout=10) as response:
+        with urllib.request.urlopen(
+            request, timeout=REQUEST_TIMEOUT
+        ) as response:
             data = json.loads(response.read().decode("utf-8"))
         return data.get("dependencies", [])
     except urllib.error.HTTPError as e:
-        if e.code == 404:
+        if e.code == HTTP_NOT_FOUND:
             raise ValueError(
                 f"Пакет '{package}' версии '{version}' не найден."
             )

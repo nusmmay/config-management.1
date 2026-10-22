@@ -17,15 +17,14 @@ from graph import DependencyGraph
 def parse_arguments():
     """Разбор аргументов командной строки."""
     parser = argparse.ArgumentParser(
-        description="Инструмент визуализации графа зависимостей пакетов"
+        description="Инструмент визуализации графа зависимостей"
     )
-
     parser.add_argument("--package", "-p", type=str, required=True,
-                        help="Имя анализируемого пакета")
+                        help="Имя пакета")
     parser.add_argument("--version", "-v", type=str, required=True,
-                        help="Версия анализируемого пакета")
+                        help="Версия пакета")
     parser.add_argument("--repo", "-r", type=str, required=True,
-                        help="URL репозитория или путь к тестовому файлу")
+                        help="URL репозитория или путь к файлу")
     parser.add_argument("--test-mode", "-t", action="store_true",
                         help="Режим работы с тестовым репозиторием")
     parser.add_argument("--output", "-o", type=str, default="graph.png",
@@ -36,7 +35,6 @@ def parse_arguments():
                         help="Подстрока для фильтрации пакетов")
     parser.add_argument("--max-depth", "-d", type=int, default=None,
                         help="Максимальная глубина анализа")
-
     return parser.parse_args()
 
 
@@ -51,9 +49,9 @@ def validate_arguments(args):
     if not args.repo or not args.repo.strip():
         errors.append("Ошибка: URL репозитория не может быть пустым.")
     if not args.output.endswith((".png", ".svg")):
-        errors.append("Ошибка: имя файла должно заканчиваться на .png или .svg.")
+        errors.append("Ошибка: файл должен быть .png или .svg.")
     if args.max_depth is not None and args.max_depth < 0:
-        errors.append("Ошибка: максимальная глубина не может быть отрицательной.")
+        errors.append("Ошибка: глубина не может быть отрицательной.")
 
     if errors:
         for err in errors:
@@ -78,7 +76,7 @@ def print_parameters(args):
 
 
 def load_graph_from_crates(args):
-    """Загрузка графа через crates.io (обычный режим)."""
+    """Загрузка графа через crates.io."""
     graph = DependencyGraph()
     deps = fetch_dependencies(args.package, args.version, args.repo)
     dep_names = [d.get("crate_id") for d in deps if d.get("crate_id")]
@@ -89,10 +87,29 @@ def load_graph_from_crates(args):
 
 
 def load_graph_from_file(args):
-    """Загрузка графа из JSON-файла (тестовый режим)."""
+    """Загрузка графа из JSON-файла."""
     graph = DependencyGraph()
     graph.load_from_file(args.repo)
     return graph
+
+
+def print_results(graph, args, order):
+    """Вывод результатов обхода и дерева."""
+    print("")
+    print(f"Порядок обхода зависимостей от '{args.package}':")
+    print("-" * 50)
+    for name, depth in order:
+        indent = "  " * depth
+        print(f"{indent}{name} (глубина {depth})")
+    print("-" * 50)
+    print(f"Всего пакетов: {len(order)}")
+
+    if args.ascii_tree:
+        print("")
+        print("ASCII-дерево зависимостей:")
+        print("-" * 50)
+        print(graph.to_ascii_tree(args.package))
+        print("-" * 50)
 
 
 def main():
@@ -111,22 +128,7 @@ def main():
             max_depth=args.max_depth,
             filter_substring=args.filter
         )
-
-        print("")
-        print(f"Порядок обхода зависимостей от '{args.package}':")
-        print("-" * 50)
-        for name, depth in order:
-            indent = "  " * depth
-            print(f"{indent}{name} (глубина {depth})")
-        print("-" * 50)
-        print(f"Всего пакетов: {len(order)}")
-
-        if args.ascii_tree:
-            print("")
-            print("ASCII-дерево зависимостей:")
-            print("-" * 50)
-            print(graph.to_ascii_tree(args.package))
-            print("-" * 50)
+        print_results(graph, args, order)
 
     except ValueError as e:
         print(f"Ошибка: {e}", file=sys.stderr)
