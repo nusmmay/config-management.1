@@ -7,7 +7,6 @@ import json
 import urllib.request
 import urllib.error
 
-# Константы для избежания "магических чисел"
 HTTP_NOT_FOUND = 404
 REQUEST_TIMEOUT = 10
 CRATES_API_URL = "https://crates.io/api/v1/crates"
