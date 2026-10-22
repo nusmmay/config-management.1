@@ -10,9 +10,7 @@ import os
 class DependencyGraph:
     """
     Граф зависимостей пакетов.
-
     Хранит словарь: пакет -> список зависимостей.
-    Позволяет обходить граф через BFS с рекурсией.
     """
 
     def __init__(self):
@@ -25,7 +23,7 @@ class DependencyGraph:
         self.graph[name] = list(dependencies or [])
 
     def load_from_file(self, path):
-        """Загрузить граф из JSON-файла (тестовый режим)."""
+        """Загрузить граф из JSON-файла."""
         if not os.path.exists(path):
             raise ValueError(f"Файл не найден: {path}")
 
@@ -36,20 +34,13 @@ class DependencyGraph:
             raise ValueError(f"Не удалось разобрать JSON: {path}")
 
         if not isinstance(data, dict):
-            raise ValueError("Файл должен содержать словарь пакетов.")
+            raise ValueError("Файл должен содержать словарь.")
 
         self.graph = data
 
     def bfs_recursive(self, start, max_depth=None, filter_substring="",
                       depth=0):
-        """
-        Обход графа через BFS с рекурсией.
-
-        :param start: имя стартового пакета
-        :param max_depth: максимальная глубина (None — без ограничения)
-        :param filter_substring: подстрока для фильтрации пакетов
-        :param depth: текущая глубина (для рекурсии)
-        """
+        """Обход графа через BFS с рекурсией."""
         if start in self.visited:
             return
 

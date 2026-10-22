@@ -38,21 +38,25 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def validate_arguments(args):
-    """Проверка корректности аргументов."""
+def check_errors(args):
+    """Собирает список ошибок в аргументах."""
     errors = []
-
     if not args.package or not args.package.strip():
-        errors.append("Ошибка: имя пакета не может быть пустым.")
+        errors.append("Ошибка: имя пакета пустое.")
     if not args.version or not args.version.strip():
-        errors.append("Ошибка: версия пакета не может быть пустой.")
+        errors.append("Ошибка: версия пакета пустая.")
     if not args.repo or not args.repo.strip():
-        errors.append("Ошибка: URL репозитория не может быть пустым.")
+        errors.append("Ошибка: URL репозитория пустой.")
     if not args.output.endswith((".png", ".svg")):
         errors.append("Ошибка: файл должен быть .png или .svg.")
     if args.max_depth is not None and args.max_depth < 0:
         errors.append("Ошибка: глубина не может быть отрицательной.")
+    return errors
 
+
+def validate_arguments(args):
+    """Проверка корректности аргументов."""
+    errors = check_errors(args)
     if errors:
         for err in errors:
             print(err, file=sys.stderr)
